@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func, select
+from sqlalchemy import Integer, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -74,7 +74,7 @@ async def get_uptime(
     result = await db.execute(
         select(
             func.count().label("total"),
-            func.sum(Check.is_ok.cast(type_=None)).label("ok"),
+            func.sum(Check.is_ok.cast(Integer)).label("ok"),
         ).where(
             Check.monitor_id == monitor_id,
             Check.checked_at >= since,

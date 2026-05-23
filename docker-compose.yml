@@ -29,7 +29,7 @@ services:
       DATABASE_URL: mysql+aiomysql://monitor:monitor@db:3306/uptime_monitor
       WORKER_TICK_SEC: 10
     ports:
-      - "8000:8000"
+      - "8001:8000"
 
 volumes:
   db_data:
