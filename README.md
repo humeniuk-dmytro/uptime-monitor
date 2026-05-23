@@ -16,11 +16,11 @@
 ### Через Docker (рекомендовано)
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-API буде доступне на `http://localhost:8000`
-Swagger UI: `http://localhost:8000/docs`
+API буде доступне на `http://localhost:8001`
+Swagger UI: `http://localhost:8001/docs`
 
 ### Локально (без Docker)
 
@@ -59,7 +59,7 @@ uvicorn app.main:app --reload
 ### Приклад створення монітора
 
 ```bash
-curl -X POST http://localhost:8000/monitors \
+curl -X POST http://localhost:8001/monitors \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Google",
@@ -73,7 +73,7 @@ curl -X POST http://localhost:8000/monitors \
 ### Uptime за останні 24 години
 
 ```bash
-curl http://localhost:8000/monitors/1/uptime?window=24h
+curl http://localhost:8001/monitors/1/uptime?window=24h
 ```
 
 Доступні вікна: `1h`, `24h`, `7d`, `30d`
