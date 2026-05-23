@@ -1,0 +1,35 @@
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: uptime_monitor
+      MYSQL_USER: monitor
+      MYSQL_PASSWORD: monitor
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: mysql+aiomysql://monitor:monitor@db:3306/uptime_monitor
+      WORKER_TICK_SEC: 10
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:
