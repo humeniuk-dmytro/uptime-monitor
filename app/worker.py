@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -66,7 +66,6 @@ async def _apply_state_machine(
         ):
             monitor.state = MonitorState.down
 
-    # перший успішний check — переводимо з unknown в up
     if is_ok and previous_state == MonitorState.unknown:
         monitor.state = MonitorState.up
 
@@ -99,7 +98,6 @@ async def _apply_state_machine(
 
 
 async def _ping_monitor(db: AsyncSession, monitor: Monitor) -> None:
-    # одразу оновлюємо last_checked_at щоб уникнути дублів при рестарті
     monitor.last_checked_at = datetime.utcnow()
     await db.flush()
 
@@ -153,14 +151,15 @@ async def _ping_monitor(db: AsyncSession, monitor: Monitor) -> None:
 async def _tick() -> None:
     async with AsyncSessionLocal() as db:
         try:
-            now = datetime.utcnow()
             result = await db.execute(
                 select(Monitor).where(
                     Monitor.status == MonitorStatus.active,
                     Monitor.last_checked_at.is_(None)
                     | (
-                        Monitor.last_checked_at
-                        <= (now - Monitor.check_interval_sec * 1)
+                        text(
+                            "last_checked_at <= DATE_SUB(UTC_TIMESTAMP(), "
+                            "INTERVAL check_interval_sec SECOND)"
+                        )
                     ),
                 )
             )
