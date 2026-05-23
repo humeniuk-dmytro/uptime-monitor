@@ -12,7 +12,6 @@ from sqlalchemy import (
     Integer,
     SmallInteger,
     String,
-    Text,
 )
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -36,7 +35,7 @@ class MonitorStatus(str, enum.Enum):
 class Monitor(Base):
     __tablename__ = "monitors"
 
-    id = Column(Integer, primary_key=True, autoincrement=True, unsigned=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     url = Column(String(2048), nullable=False)
     check_interval_sec = Column(SmallInteger, nullable=False, default=60)
